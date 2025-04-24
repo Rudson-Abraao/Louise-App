@@ -2,6 +2,7 @@ package com.Louise.teste.api.service;
 
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.Duration;
@@ -14,8 +15,16 @@ public class VinculacaoShopeeService {
     private final WebClient webClient;
     private final TokenStorageService tokenStorageService;
 
+    ExchangeStrategies strategies = ExchangeStrategies.builder()
+            .codecs(config -> config
+                    .defaultCodecs()
+                    .maxInMemorySize(10 * 1024 * 1024))
+            .build();
+
     public VinculacaoShopeeService(WebClient.Builder webClientBuilder, TokenStorageService tokenStorageService) {
-        this.webClient = webClientBuilder.baseUrl("https://www.bling.com.br/Api/v3").build();
+        this.webClient = webClientBuilder.baseUrl("https://www.bling.com.br/Api/v3")
+                .exchangeStrategies(strategies)
+                .build();
         this.tokenStorageService = tokenStorageService;
     }
 
@@ -133,7 +142,7 @@ public class VinculacaoShopeeService {
                 .bodyValue(bodyRequisicao)
                 .retrieve()
                 .bodyToMono(String.class)
-                .delayElement(Duration.ofMillis(400))
+                .delayElement(Duration.ofMillis(800))
                 .subscribe();
 
         System.out.println("produto inserido na loja");
@@ -186,7 +195,7 @@ public class VinculacaoShopeeService {
                     Map<String,Object> produto = (Map<String, Object>) data.get(0);
                     this.idVariacao = (Long) produto.get("id");
                 })
-                .delayElement(Duration.ofMillis(400))
+                .delayElement(Duration.ofMillis(800))
                 .block();
     }
 
@@ -201,7 +210,7 @@ public class VinculacaoShopeeService {
                     Map<String, Object> dadosProduto = (Map<String, Object>) data.getFirst();
                     this.idVinculoLoja = (Integer) dadosProduto.get("id");
                 })
-                .delayElement(Duration.ofMillis(400))
+                .delayElement(Duration.ofMillis(800))
                 .block();
 
     }
